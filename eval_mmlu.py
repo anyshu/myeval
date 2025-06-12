@@ -34,7 +34,7 @@ class MMLUEvaluator:
             'Content-Type': 'application/json'
         })
         
-    def call_api(self, messages: List[Dict], temperature: float = 0.0, max_tokens: int = 10) -> Optional[str]:
+    def call_api(self, messages: List[Dict], temperature: float = 0.0, max_tokens: int = 512) -> Optional[str]:
         """
         调用API获取模型响应
         
@@ -83,12 +83,12 @@ class MMLUEvaluator:
         Returns:
             格式化后的问题字符串
         """
-        formatted = f"问题: {question}\n\n"
+        formatted = f"{question}\n\n"
         for key in ['A', 'B', 'C', 'D']:
             if key in options:
                 formatted += f"{key}. {options[key]}\n"
         
-        formatted += "\n请选择正确答案，只回答字母(A、B、C或D)："
+        formatted += "\nPlease choose the correct answer. Only respond with the letter (A, B, C, or D), no explanation needed:"
         return formatted
     
     def extract_answer(self, response: str) -> Optional[str]:
@@ -107,22 +107,26 @@ class MMLUEvaluator:
         # 清理响应文本
         response = response.strip().upper()
         
+        import re
+        
         # 尝试不同的提取方法
         # 方法1：直接查找单个字母
-        for letter in ['A', 'B', 'C', 'D']:
-            if response == letter:
-                return letter
+        if response in ['A', 'B', 'C', 'D']:
+            return response
         
-        # 方法2：查找"答案是X"或"选择X"的模式
-        import re
+        # 方法2：查找各种格式的答案模式
         patterns = [
+            r'\\BOXED\{([ABCD])\}',  # \boxed{D} 格式
             r'答案是\s*([ABCD])',
             r'选择\s*([ABCD])',
             r'答案：\s*([ABCD])',
             r'选择：\s*([ABCD])',
-            r'[^A-Z]([ABCD])[^A-Z]',
-            r'^([ABCD])[^A-Z]',
-            r'[^A-Z]([ABCD])$'
+            r'THE CORRECT ANSWER IS\s*([ABCD])',
+            r'ANSWER:\s*([ABCD])',
+            r'ANSWER IS\s*([ABCD])',
+            r'^([ABCD])\.?$',  # 单独的字母，可能带点号
+            r'^([ABCD])\s*[-:]',  # 字母后跟冒号或破折号
+            r'^\s*([ABCD])\s*$',  # 前后可能有空格的单个字母
         ]
         
         for pattern in patterns:
@@ -130,7 +134,12 @@ class MMLUEvaluator:
             if match:
                 return match.group(1)
         
-        # 方法3：查找第一个出现的A、B、C、D
+        # 方法3：查找最后一个出现的单独字母（通常是最终答案）
+        letters_found = re.findall(r'\b([ABCD])\b', response)
+        if letters_found:
+            return letters_found[-1]
+        
+        # 方法4：查找第一个出现的A、B、C、D
         for char in response:
             if char in ['A', 'B', 'C', 'D']:
                 return char
