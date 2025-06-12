@@ -172,20 +172,44 @@ class MMLUEvaluator:
                 reader = csv.DictReader(f)
                 rows = list(reader)
                 
+                # 检查文件是否正确读取
+                if not rows:
+                    print(f"警告: 文件 {csv_file} 为空或无法读取")
+                    return results
+                
+                # 检查列名
+                fieldnames = reader.fieldnames
+                print(f"检测到的列名: {fieldnames}")
+                
+                required_columns = ['input', 'A', 'B', 'C', 'D', 'target']
+                missing_columns = [col for col in required_columns if col not in fieldnames]
+                if missing_columns:
+                    print(f"错误: 缺少必需的列: {missing_columns}")
+                    return results
+                
                 # 采样
                 if sample_size and sample_size < len(rows):
                     import random
                     rows = random.sample(rows, sample_size)
                 
                 for i, row in enumerate(rows):
-                    question = row['input']
-                    options = {
-                        'A': row['A'],
-                        'B': row['B'], 
-                        'C': row['C'],
-                        'D': row['D']
-                    }
-                    correct_answer = row['target']
+                    # 添加调试信息
+                    if i == 0:
+                        print(f"第一行数据的键: {list(row.keys())}")
+                    
+                    try:
+                        question = row['input']
+                        options = {
+                            'A': row['A'],
+                            'B': row['B'], 
+                            'C': row['C'],
+                            'D': row['D']
+                        }
+                        correct_answer = row['target']
+                    except KeyError as e:
+                        print(f"键错误在第{i+1}行: {e}")
+                        print(f"可用的键: {list(row.keys())}")
+                        continue
                     
                     # 格式化问题
                     formatted_question = self.format_question(question, options)
