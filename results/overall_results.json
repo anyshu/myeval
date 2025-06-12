@@ -1,0 +1,18 @@
+{
+  "total_correct": 0,
+  "total_questions": 2,
+  "dataset_results": {
+    "abstract_algebra": {
+      "accuracy": 0.0,
+      "correct": 0,
+      "total": 2
+    }
+  },
+  "timestamp": "2025-06-12T09:43:48.947553",
+  "config": {
+    "base_url": "http://127.0.0.1:18000/v1",
+    "model": "/data/models/fazhi/DeepSeek-V3-0324-HF-FP4/",
+    "sample_size": 2
+  },
+  "overall_accuracy": 0.0
+}

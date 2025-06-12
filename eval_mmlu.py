@@ -168,7 +168,7 @@ class MMLUEvaluator:
         print(f"开始评估: {csv_file}")
         
         try:
-            with open(csv_file, 'r', encoding='utf-8') as f:
+            with open(csv_file, 'r', encoding='utf-8-sig') as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
                 
