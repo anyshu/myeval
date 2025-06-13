@@ -35,7 +35,7 @@ if [ $? -eq 0 ]; then
     else
         # 默认运行小样本测试
         echo "运行小样本测试（每个数据集5道题）..."
-        python eval_mmlu.py --sample_size 5
+        python eval_mmlu.py --sample_size 1
     fi
 else
     echo "❌ API连接失败，请检查API服务是否正常运行"

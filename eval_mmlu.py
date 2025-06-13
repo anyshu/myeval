@@ -169,22 +169,12 @@ class MMLUEvaluator:
         
         try:
             with open(csv_file, 'r', encoding='utf-8-sig') as f:
-                reader = csv.DictReader(f)
+                reader = csv.reader(f)
                 rows = list(reader)
                 
                 # 检查文件是否正确读取
                 if not rows:
                     print(f"警告: 文件 {csv_file} 为空或无法读取")
-                    return results
-                
-                # 检查列名
-                fieldnames = reader.fieldnames
-                print(f"检测到的列名: {fieldnames}")
-                
-                required_columns = ['input', 'A', 'B', 'C', 'D', 'target']
-                missing_columns = [col for col in required_columns if col not in fieldnames]
-                if missing_columns:
-                    print(f"错误: 缺少必需的列: {missing_columns}")
                     return results
                 
                 # 采样
@@ -193,22 +183,19 @@ class MMLUEvaluator:
                     rows = random.sample(rows, sample_size)
                 
                 for i, row in enumerate(rows):
-                    # 添加调试信息
-                    if i == 0:
-                        print(f"第一行数据的键: {list(row.keys())}")
-                    
                     try:
-                        question = row['input']
+                        # 解析行数据
+                        question = row[0]
                         options = {
-                            'A': row['A'],
-                            'B': row['B'], 
-                            'C': row['C'],
-                            'D': row['D']
+                            'A': row[1],
+                            'B': row[2],
+                            'C': row[3],
+                            'D': row[4]
                         }
-                        correct_answer = row['target']
-                    except KeyError as e:
-                        print(f"键错误在第{i+1}行: {e}")
-                        print(f"可用的键: {list(row.keys())}")
+                        correct_answer = row[5]
+                    except IndexError as e:
+                        print(f"行格式错误在第{i+1}行: {e}")
+                        print(f"行内容: {row}")
                         continue
                     
                     # 格式化问题
