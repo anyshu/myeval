@@ -34,7 +34,7 @@ class MMLUEvaluator:
             'Content-Type': 'application/json'
         })
         
-    def call_api(self, messages: List[Dict], temperature: float = 0.0, max_tokens: int = 512) -> Optional[str]:
+    def call_api(self, messages: List[Dict], temperature: float = 0.0, max_tokens: int = 8196) -> Optional[str]:
         """
         调用API获取模型响应
         
